@@ -9,19 +9,31 @@ function App() {
 
 
   const handleChange = (e) => {
-    currRef.current = e.target.value;
-    setCount(state => e.target.value);
+
+    if (currRef.current !== 0) {
+      setCount(currRef.current.value);
+    } else {
+      currRef.current = e.target.value;
+      setCount(state => e.target.value);
+    }
+    if (count < 0) { return }
   }
 
   const handleStart = (e) => {
-    setIsActive(state => true);
-    currRef.current = 0;
+    if (e.target.textContent === "Stop") {
+      setIsActive(state => false);
+      currRef.current.value = count;
+    } else {
+      if (count <= 0) { setCount(state => state = 0) }
+      setIsActive(state => true);
+      currRef.current.value = 0;
+    }
   }
 
 
   useEffect(() => {
-    if (count === 0) { return setIsActive(state => false) }
-    
+    if (count <= 0) { return setIsActive(state => false) }
+
     if (isActive) {
       const interval = setInterval(() => {
         setCount(prev => prev - 1);
@@ -36,15 +48,17 @@ function App() {
 
   return (
     <div>
-      <input ref={currRef} onChange={handleChange} type={"number"} value={currRef.current} />
-      {/* <button onClick={handleStart}>Set</button> */}
-      <button onClick={handleStart}>Start</button>
+      <input disabled={isActive} ref={currRef} onChange={handleChange} type={"number"} min={0} placeholder='enter seconds'/>
+
+      <button onClick={handleStart}>{!isActive ? "Start" : "Stop"}</button>
       {
-        isActive
-          ?
-          <p style={{ "background": "black", "color": "white" }}>{count}</p>
-          :
-          <p style={{ "background": "black", "color": "white" }}>Timer over!</p>
+        <p style={{ "background": "black", "color": "white" }}>
+          {
+          isActive 
+          ? count 
+          : 'Timer stopped!'
+          }
+        </p>
       }
     </div>
   );
